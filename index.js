@@ -55,6 +55,13 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/addClass', async (req, res) => {
+            const classInfo = req.body;
+            console.log(classInfo);
+            const result = await classesCollection.insertOne(classInfo);
+            res.send(result);
+        })
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
