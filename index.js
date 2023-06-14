@@ -27,9 +27,18 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         client.connect();
 
+        const usersCollection = client.db('linguisticHorizons').collection('users');
         const instructorsCollection = client.db('linguisticHorizons').collection('instructors');
         const classesCollection = client.db('linguisticHorizons').collection('classes');
 
+        // users
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        })
+
+        // instructors
         app.get('/instructors', async (req, res) => {
             const result = await instructorsCollection.find().toArray();
             res.send(result);
