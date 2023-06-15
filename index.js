@@ -80,6 +80,7 @@ async function run() {
             res.send(result);
         })
 
+
         // instructors
         app.get('/instructors', async (req, res) => {
             const result = await instructorsCollection.find().toArray();
@@ -99,6 +100,8 @@ async function run() {
             const result = await instructorsCollection.findOne(query);
             res.send(result);
         })
+
+
 
         // classes
         app.get('/classes', async (req, res) => {
@@ -143,6 +146,24 @@ async function run() {
             const result = await classesCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
+
+        // send feedback
+        app.patch('/classes/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const feedback = req.body.feedback;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: {
+                    feedback: feedback
+                },
+            };
+
+            const result = await classesCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        })
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
