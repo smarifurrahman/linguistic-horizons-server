@@ -116,10 +116,25 @@ async function run() {
             res.send(result);
         })
 
+        // filter class by email
         app.get('/classes/:email', async (req, res) => {
             const email = req.params.email;
             const query = { instructorEmail: email };
             const result = await classesCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        // update class info
+        app.patch('/classes/updateclass/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateInfo = req.body;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: updateInfo,
+            };
+
+            const result = await classesCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
