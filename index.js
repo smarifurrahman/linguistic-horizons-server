@@ -105,7 +105,12 @@ async function run() {
 
         // classes
         app.get('/classes', async (req, res) => {
-            const result = await classesCollection.find().toArray();
+            let query = {};
+            if (req.query?.status) {
+                query = { status: req.query.status };
+            }
+
+            const result = await classesCollection.find(query).toArray();
             res.send(result);
         })
 
