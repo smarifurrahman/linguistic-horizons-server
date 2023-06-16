@@ -238,6 +238,28 @@ async function run() {
         })
 
 
+        // delete selectedClass
+        app.patch('/classes/selected/delete/:id', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+
+            const id = req.params.id;
+            let selectedClasses = user.selectedClasses;
+
+            const filtered = selectedClasses.filter(classId => classId !== id);
+
+            const updateDoc = {
+                $set: {
+                    selectedClasses: filtered
+                },
+            };
+
+            const result = await usersCollection.updateOne(query, updateDoc);
+            res.send(result);
+        })
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
