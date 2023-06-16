@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 
 const app = express();
@@ -31,6 +32,14 @@ async function run() {
         const instructorsCollection = client.db('linguisticHorizons').collection('instructors');
         const classesCollection = client.db('linguisticHorizons').collection('classes');
 
+        app.post('/jwt', (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+
+            res.send({ token })
+        })
+
+
         // users
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
@@ -60,7 +69,7 @@ async function run() {
         // make admin
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
-        
+
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -75,7 +84,7 @@ async function run() {
         // make instructor
         app.patch('/users/instructor/:id', async (req, res) => {
             const id = req.params.id;
-        
+
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -96,7 +105,7 @@ async function run() {
 
         app.post('/addInstructors', async (req, res) => {
             const instructorsInfo = req.body;
-        
+
             const result = await instructorsCollection.insertOne(instructorsInfo);
             res.send(result);
         })
@@ -158,7 +167,7 @@ async function run() {
 
         app.post('/addClass', async (req, res) => {
             const classInfo = req.body;
-        
+
             const result = await classesCollection.insertOne(classInfo);
             res.send(result);
         })
@@ -181,7 +190,7 @@ async function run() {
         // approve class
         app.patch('/classes/approved/:id', async (req, res) => {
             const id = req.params.id;
-        
+
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -196,7 +205,7 @@ async function run() {
         // deny class
         app.patch('/classes/denied/:id', async (req, res) => {
             const id = req.params.id;
-        
+
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
