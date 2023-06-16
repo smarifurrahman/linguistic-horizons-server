@@ -60,6 +60,7 @@ async function run() {
         // make admin
         app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
+        
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -74,6 +75,7 @@ async function run() {
         // make instructor
         app.patch('/users/instructor/:id', async (req, res) => {
             const id = req.params.id;
+        
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -94,6 +96,7 @@ async function run() {
 
         app.post('/addInstructors', async (req, res) => {
             const instructorsInfo = req.body;
+        
             const result = await instructorsCollection.insertOne(instructorsInfo);
             res.send(result);
         })
@@ -123,7 +126,7 @@ async function run() {
         })
 
         app.get('/classes/:id', async (req, res) => {
-            const id = req.params.
+            const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await classesCollection.findOne(query);
             res.send(result);
@@ -131,7 +134,7 @@ async function run() {
 
         // find selected classes
         app.post('/selected-classes', async (req, res) => {
-            const id = req.bo
+            const id = req.body;
             const ids = id.map(i => new ObjectId(i))
             const result = await classesCollection.find({ _id: { $in: ids } }).toArray();
             res.send(result);
@@ -155,6 +158,7 @@ async function run() {
 
         app.post('/addClass', async (req, res) => {
             const classInfo = req.body;
+        
             const result = await classesCollection.insertOne(classInfo);
             res.send(result);
         })
@@ -177,6 +181,7 @@ async function run() {
         // approve class
         app.patch('/classes/approved/:id', async (req, res) => {
             const id = req.params.id;
+        
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -184,13 +189,14 @@ async function run() {
                 },
             };
 
-            const result = await classesCollection.updateOne(filter, updateDo
+            const result = await classesCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
         // deny class
         app.patch('/classes/denied/:id', async (req, res) => {
             const id = req.params.id;
+        
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
