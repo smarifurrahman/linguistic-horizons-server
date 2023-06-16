@@ -56,6 +56,28 @@ async function run() {
         })
 
 
+        // use verifyJWT before using verifyAdmin
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'Admin') {
+                return res.status(403).send({ error: true, message: 'not an admin, access forbidden' });
+            }
+            next();
+        }
+
+        // use verifyJWT before using verifyInstructor
+        const verifyInstructor = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'Instructor') {
+                return res.status(403).send({ error: true, message: 'not an instructor, access forbidden' });
+            }
+            next();
+        }
+
         // users
         app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
@@ -109,7 +131,7 @@ async function run() {
         })
 
         // make admin
-        app.patch('/users/admin/:id', async (req, res) => {
+        app.patch('/users/admin/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
 
             const filter = { _id: new ObjectId(id) };
