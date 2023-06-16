@@ -237,22 +237,23 @@ async function run() {
             res.send(result);
         })
 
-        // enroll a class and set to user with enrolledClass array
-        app.patch('/classes/selected/:id', async (req, res) => {
+        // enroll a class and set to classes with enrolledClass array
+        app.patch('/classes/enrolled/:id', async (req, res) => {
             const email = req.query.email;
-            const query = { email: email };
-            const user = await usersCollection.findOne(query);
-
             const id = req.params.id;
+
+            const query = { _id: new ObjectId(id) };
+            const classInfo = await classesCollection.findOne(query);
+
             let enrolledClasses = [];
 
-            if (!user.enrolledClasses) {
-                enrolledClasses = [id];
+            if (!classInfo.enrolledClasses) {
+                enrolledClasses = [email];
             }
             else {
-                const isExist = user.enrolledClasses.find(classId => classId === id);
+                const isExist = classInfo.enrolledClasses.find(emailId => emailId === email);
                 if (!isExist) {
-                    enrolledClasses = [...user.enrolledClasses, id];
+                    enrolledClasses = [...classInfo.enrolledClasses, email];
                 }
                 else {
                     return res.send({ enrolled: true, message: 'Already Enrolled' });
@@ -265,7 +266,7 @@ async function run() {
                 },
             };
 
-            const result = await usersCollection.updateOne(query, updateDoc);
+            const result = await classesCollection.updateOne(query, updateDoc);
             res.send(result);
         })
 
