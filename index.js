@@ -117,6 +117,10 @@ async function run() {
                 query = { status: req.query.status };
             }
 
+            else if (req.query?.email) {
+                query = { instructorEmail: req.query.email };
+            }
+
             const result = await classesCollection.find(query).toArray();
             res.send(result);
         })
@@ -145,13 +149,6 @@ async function run() {
             res.send(result);
         })
 
-        // filter class by email
-        app.get('/classes/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { instructorEmail: email };
-            const result = await classesCollection.find(query).toArray();
-            res.send(result);
-        })
 
         // update class info
         app.patch('/classes/updateclass/:id', async (req, res) => {
