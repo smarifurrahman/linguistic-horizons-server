@@ -191,6 +191,39 @@ async function run() {
         })
 
 
+        // select class and set to user with selectedClass array
+        app.patch('/classes/selected/:id', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+
+            const id = req.params.id;
+            let selectedClasses = [];
+
+            if (!user.selectedClasses) {
+                selectedClasses = [id];
+            }
+            else {
+                const isExist = user.selectedClasses.find(classId => classId === id);
+                if (!isExist) {
+                    selectedClasses = [...user.selectedClasses, id];
+                }
+                else {
+                    return res.send({ selected: true, message: 'Already Selected' });
+                }
+            }
+
+            const updateDoc = {
+                $set: {
+                    selectedClasses: selectedClasses
+                },
+            };
+
+            const result = await usersCollection.updateOne(query, updateDoc);
+            res.send(result);
+        })
+
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
