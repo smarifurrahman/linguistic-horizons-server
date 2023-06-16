@@ -84,7 +84,7 @@ async function run() {
             if (req.query?.role) {
                 query = { role: req.query.role };
             }
-            
+
             const result = await usersCollection.find(query).toArray();
             res.send(result);
         })
@@ -112,6 +112,19 @@ async function run() {
             const query = { email: email }
             const user = await usersCollection.findOne(query);
             const result = { instructor: user?.role === 'Instructor' }
+            res.send(result);
+        })
+
+        app.get('/users/check-student/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+
+            if (req.decoded.email !== email) {
+                res.send({ student: false })
+            }
+
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            const result = { student: user?.role === 'Student' }
             res.send(result);
         })
 
