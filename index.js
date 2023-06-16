@@ -255,15 +255,15 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const classInfo = await classesCollection.findOne(query);
 
-            let enrolledClasses = [];
+            let enrolledStudents = [];
 
-            if (!classInfo.enrolledClasses) {
-                enrolledClasses = [email];
+            if (!classInfo.enrolledStudents) {
+                enrolledStudents = [email];
             }
             else {
-                const isExist = classInfo.enrolledClasses.find(emailId => emailId === email);
+                const isExist = classInfo.enrolledStudents.find(emailId => emailId === email);
                 if (!isExist) {
-                    enrolledClasses = [...classInfo.enrolledClasses, email];
+                    enrolledStudents = [...classInfo.enrolledStudents, email];
                 }
                 else {
                     return res.send({ enrolled: true, message: 'Already Enrolled' });
@@ -272,7 +272,7 @@ async function run() {
 
             const updateDoc = {
                 $set: {
-                    enrolledClasses: enrolledClasses
+                    enrolledStudents: enrolledStudents
                 },
             };
 
