@@ -123,8 +123,18 @@ async function run() {
 
         app.get('/classes/:id', async (req, res) => {
             const id = req.params.id;
+            console.log(id)
             const query = { _id: new ObjectId(id) };
             const result = await classesCollection.findOne(query);
+            res.send(result);
+        })
+
+        // find selected classes
+        app.post('/selected-classes', async (req, res) => {
+            const id = req.body;
+            console.log({ id })
+            const ids = id.map(i => new ObjectId(i))
+            const result = await classesCollection.find({ _id: { $in: ids } }).toArray();
             res.send(result);
         })
 
