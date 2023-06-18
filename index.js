@@ -45,7 +45,6 @@ async function run() {
         client.connect();
 
         const usersCollection = client.db('linguisticHorizons').collection('users');
-        const instructorsCollection = client.db('linguisticHorizons').collection('instructors');
         const classesCollection = client.db('linguisticHorizons').collection('classes');
 
         app.post('/jwt', (req, res) => {
@@ -178,7 +177,7 @@ async function run() {
             res.send(result);
         })
 
-        
+
         // classes
         app.get('/classes', async (req, res) => {
             let query = {};
@@ -205,7 +204,6 @@ async function run() {
         app.post('/selected-classes', async (req, res) => {
             const id = req.body;
             const ids = id.map(i => new ObjectId(i))
-            console.log(ids)
             const result = await classesCollection.find({ _id: { $in: ids } }).toArray();
             res.send(result);
         })
@@ -217,6 +215,44 @@ async function run() {
             const result = await classesCollection.find(query).toArray();
             res.send(result);
         })
+
+        app.get('/popular-classes', async (req, res) => {
+            const options = { sort: { enrolledStudentsCount: -1 } };
+            const result = await classesCollection.find({}, options).toArray();
+            res.send(result);
+        });
+
+        // if enrolledStudents in some elements we need to match first, if all has value we do't need this match
+        // app.get('/popular-classes', async (req, res) => {
+        //     const result = await classesCollection.aggregate([
+        //         { $match: { enrolledStudents: { $exists: true, $type: 'array' } } },
+        //         { $addFields: { enrolledStudentsCount: { $size: "$enrolledStudents" } } },
+        //         { $sort: { enrolledStudentsCount: -1 } }
+        //     ]).toArray();
+        //     res.send(result);
+        // });
+
+        // update the db with enrolledStudents for all classes
+        // app.get('/classes-update', async (req, res) => {
+        //     try {
+        //         const classes = await classesCollection.find().toArray();
+
+        //         for (const classItem of classes) {
+        //             const enrolledStudentsCount = classItem.enrolledStudents.length;
+
+        //             await classesCollection.updateOne(
+        //                 { _id: new ObjectId(classItem._id) },
+        //                 { $set: { enrolledStudentsCount: enrolledStudentsCount } }
+        //             );
+        //         }
+
+        //         res.send("Enrolled students count updated for all classes");
+        //     } catch (error) {
+        //         res.status(500).send(error);
+        //     }
+        // });
+
+
 
         app.post('/addClass', async (req, res) => {
             const classInfo = req.body;
