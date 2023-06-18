@@ -184,12 +184,17 @@ async function run() {
             if (req.query?.status) {
                 query = { status: req.query.status };
             }
-
             else if (req.query?.email) {
                 query = { instructorEmail: req.query.email };
             }
 
-            const result = await classesCollection.find(query).toArray();
+            let options = {};
+            console.log(req.query?.sort)
+            if (req.query?.sort) {
+                options = { sort: { enrolledStudentsCount: -1 } };
+            }
+
+            const result = await classesCollection.find(query, options).toArray();
             res.send(result);
         })
 
@@ -216,11 +221,11 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/popular-classes', async (req, res) => {
-            const options = { sort: { enrolledStudentsCount: -1 } };
-            const result = await classesCollection.find({}, options).toArray();
-            res.send(result);
-        });
+        // app.get('/popular-classes', async (req, res) => {
+        //     const options = { sort: { enrolledStudentsCount: -1 } };
+        //     const result = await classesCollection.find({}, options).toArray();
+        //     res.send(result);
+        // });
 
         // if enrolledStudents in some elements we need to match first, if all has value we do't need this match
         // app.get('/popular-classes', async (req, res) => {
@@ -251,8 +256,6 @@ async function run() {
         //         res.status(500).send(error);
         //     }
         // });
-
-
 
         app.post('/addClass', async (req, res) => {
             const classInfo = req.body;
