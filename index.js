@@ -178,29 +178,7 @@ async function run() {
             res.send(result);
         })
 
-
-        // instructors
-        app.get('/instructors', async (req, res) => {
-            const result = await instructorsCollection.find().toArray();
-            res.send(result);
-        })
-
-        app.post('/addInstructors', async (req, res) => {
-            const instructorsInfo = req.body;
-
-            const result = await instructorsCollection.insertOne(instructorsInfo);
-            res.send(result);
-        })
-
-        app.get('/instructors/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await instructorsCollection.findOne(query);
-            res.send(result);
-        })
-
-
-
+        
         // classes
         app.get('/classes', async (req, res) => {
             let query = {};
@@ -227,6 +205,7 @@ async function run() {
         app.post('/selected-classes', async (req, res) => {
             const id = req.body;
             const ids = id.map(i => new ObjectId(i))
+            console.log(ids)
             const result = await classesCollection.find({ _id: { $in: ids } }).toArray();
             res.send(result);
         })
@@ -234,22 +213,13 @@ async function run() {
         // find enrolled classes
         app.get('/enrolled-classes', async (req, res) => {
             const email = req.query.email;
-            const classes = await classesCollection.find().toArray();
-            let result = [];
-            classes.map(classInfo => {
-                if (classInfo.enrolledStudents) {
-                    const isExist = classInfo.enrolledStudents.find(i => i === email);
-                    if (isExist) {
-                        result = [...result, classInfo];
-                    }
-                }
-            })
+            const query = { enrolledStudents: { $in: [email] } }
+            const result = await classesCollection.find(query).toArray();
             res.send(result);
         })
 
         app.post('/addClass', async (req, res) => {
             const classInfo = req.body;
-
             const result = await classesCollection.insertOne(classInfo);
             res.send(result);
         })
@@ -259,12 +229,10 @@ async function run() {
         app.patch('/classes/updateclass/:id', async (req, res) => {
             const id = req.params.id;
             const updateInfo = req.body;
-
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: updateInfo,
             };
-
             const result = await classesCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
@@ -272,7 +240,6 @@ async function run() {
         // approve class
         app.patch('/classes/approved/:id', async (req, res) => {
             const id = req.params.id;
-
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
@@ -287,14 +254,12 @@ async function run() {
         // deny class
         app.patch('/classes/denied/:id', async (req, res) => {
             const id = req.params.id;
-
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
                     status: 'Denied'
                 },
             };
-
             const result = await classesCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
@@ -303,7 +268,6 @@ async function run() {
         app.patch('/classes/feedback/:id', async (req, res) => {
             const id = req.params.id;
             const feedback = req.body.feedback;
-
             const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: {
