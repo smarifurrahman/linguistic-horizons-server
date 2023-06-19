@@ -355,33 +355,24 @@ async function run() {
         app.patch('/classes/enrolled/:id', async (req, res) => {
             const email = req.query.email;
             const id = req.params.id;
-
             const query = { _id: new ObjectId(id) };
+
             const classInfo = await classesCollection.findOne(query);
+            const enrolledStudents = classInfo.enrolledStudents;
 
-            let enrolledStudents = [];
-
-            if (!classInfo.enrolledStudents) {
-                enrolledStudents = [email];
-            }
-            else {
-                const isExist = classInfo.enrolledStudents.find(emailId => emailId === email);
-                if (!isExist) {
-                    enrolledStudents = [...classInfo.enrolledStudents, email];
-                }
-                else {
-                    return res.send({ enrolled: true, message: 'Already Enrolled' });
-                }
+            if (enrolledStudents.includes(email)) {
+                return res.send({ enrolled: true, message: 'Already enrolled' });
             }
 
-            const updateDoc = {
-                $set: {
-                    enrolledStudents: enrolledStudents
-                },
-            };
+            const updateResult = await classesCollection.updateOne(
+                query,
+                {
+                    $addToSet: { enrolledStudents: email },
+                    $inc: { enrolledStudentsCount: 1, availableSeats: -1 }
+                }
+            );
 
-            const result = await classesCollection.updateOne(query, updateDoc);
-            res.send(result);
+            res.send(updateResult);
         })
 
 
