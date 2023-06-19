@@ -177,6 +177,38 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/popular-instructors', async (req, res) => {
+            const instructors = await classesCollection.aggregate([
+                {
+                    $group: {
+                        _id: "$instructorEmail",
+                        totalEnrolledStudents: { $sum: "$enrolledStudentsCount" },
+                        totalCoursesTaken: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { totalEnrolledStudents: -1 }
+                }
+            ]).toArray();
+
+            const instructorEmails = instructors.map(instructor => instructor._id);
+
+            const instructorDetails = await usersCollection.find({ email: { $in: instructorEmails } }).toArray();
+
+            const result = instructors.map(instructor => {
+                const instructorDetail = instructorDetails.find(detail => detail.email === instructor._id);
+                return {
+                    instructorEmail: instructor._id,
+                    totalEnrolledStudents: instructor.totalEnrolledStudents,
+                    totalCoursesTaken: instructor.totalCoursesTaken,
+                    instructorName: instructorDetail?.name,
+                    instructorPhoto: instructorDetail?.photo,
+                };
+            });
+
+            res.send(result);
+        });
+
 
         // classes
         app.get('/classes', async (req, res) => {
@@ -189,7 +221,6 @@ async function run() {
             }
 
             let options = {};
-            console.log(req.query?.sort)
             if (req.query?.sort) {
                 options = { sort: { enrolledStudentsCount: -1 } };
             }
