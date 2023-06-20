@@ -198,11 +198,12 @@ async function run() {
             const result = instructors.map(instructor => {
                 const instructorDetail = instructorDetails.find(detail => detail.email === instructor._id);
                 return {
+                    _id: instructorDetail?._id,
                     instructorEmail: instructor._id,
-                    totalEnrolledStudents: instructor.totalEnrolledStudents,
-                    totalCoursesTaken: instructor.totalCoursesTaken,
                     instructorName: instructorDetail?.name,
                     instructorPhoto: instructorDetail?.photo,
+                    totalEnrolledStudents: instructor.totalEnrolledStudents,
+                    totalCoursesTaken: instructor.totalCoursesTaken,
                 };
             });
 
