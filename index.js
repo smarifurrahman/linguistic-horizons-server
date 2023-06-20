@@ -177,7 +177,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/popular-instructors', async (req, res) => {
+        app.get('/instructors', async (req, res) => {
             const instructors = await classesCollection.aggregate([
                 {
                     $group: {
