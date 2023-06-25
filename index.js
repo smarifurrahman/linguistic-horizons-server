@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const stripe = require('stripe')(process.env.PAYMENT_STRIPE_SECRET_KEY);
 require('dotenv').config()
 
 const app = express();
@@ -251,6 +252,21 @@ async function run() {
             const query = { enrolledStudents: { $in: [email] } }
             const result = await classesCollection.find(query).toArray();
             res.send(result);
+        })
+
+        // create payment intent
+        app.post('/create-payment-intent', async (req, res) => {
+            const { price } = req.body;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: '[card]',
+            });
+            
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
         })
 
         // app.get('/popular-classes', async (req, res) => {
